@@ -1,0 +1,146 @@
+[
+  {
+    "id": "1.1",
+    "name": "Ramune Original Flavor",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "1.2",
+    "name": "Ramune Original Flavor",
+    "price": 2,
+    "stock": 0
+  },
+  {
+    "id": "1.3",
+    "name": "Ramune Mango & Pineapple",
+    "price": 3,
+    "stock": 4
+  },
+  {
+    "id": "1.4",
+    "name": "Calpico Strawberry Flavor",
+    "price": 2.5,
+    "stock": 0
+  },
+  {
+    "id": "1.5",
+    "name": "Calpico Original Flavor",
+    "price": 2.5,
+    "stock": 5
+  },
+  {
+    "id": "1.6",
+    "name": "Relax Milk Tea",
+    "price": 3,
+    "stock": 5
+  },
+  {
+    "id": "1.7",
+    "name": "Sparkling Water Peach Flavor",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "1.8",
+    "name": "Oolong Tea Peach Flavor",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "2.1",
+    "name": "Royal Milk Tea",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "2.2",
+    "name": "Wangzai Milk",
+    "price": 2,
+    "stock": 4
+  },
+  {
+    "id": "2.3",
+    "name": "Plum Drink",
+    "price": 3,
+    "stock": 5
+  },
+  {
+    "id": "2.4",
+    "name": "Grape Cocktail (Non-alcoholic)",
+    "price": 2.5,
+    "stock": 5
+  },
+  {
+    "id": "2.5",
+    "name": "Orange Cocktail (Non-alcoholic)",
+    "price": 2.5,
+    "stock": 2
+  },
+  {
+    "id": "2.6",
+    "name": "Nectar Peach Juice",
+    "price": 3,
+    "stock": 4
+  },
+  {
+    "id": "2.7",
+    "name": "Cafe Latte Caramel",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "2.8",
+    "name": "DemiSoda Peach Flavor",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "3.1",
+    "name": "Royal Milk Tea",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "3.2",
+    "name": "Wangzai Milk",
+    "price": 2,
+    "stock": 5
+  },
+  {
+    "id": "3.3",
+    "name": "Plum Drink",
+    "price": 3,
+    "stock": 5
+  },
+  {
+    "id": "3.4",
+    "name": "Grape Cocktail (Non-alcoholic)",
+    "price": 2.5,
+    "stock": 5
+  },
+  {
+    "id": "3.5",
+    "name": "Apple Juice",
+    "price": 2.5,
+    "stock": 5
+  },
+  {
+    "id": "3.6",
+    "name": "Nectar Peach Juice",
+    "price": 3,
+    "stock": 5
+  },
+  {
+    "id": "3.7",
+    "name": "Jeju Matcha Latte",
+    "price": 2,
+    "stock": 4
+  },
+  {
+    "id": "3.8",
+    "name": "DemiSoda Grapefruit Flavor",
+    "price": 2,
+    "stock": 5
+  }
+]

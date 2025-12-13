@@ -1,233 +1,746 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <link
+      href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-<div class="container" style="margin:100px;">
-  <div class="container" id="machinebody" style="position: relative;">
-
-    <!-- Cash Slot inside machine -->
-    <div id="cashSlot">
-      <div class="slot-label">DROP COINS<br>HERE</div>
+  <body>
+    <!-- Left Sidebar: State Tracking Panel -->
+    <div id="statePanel">
+      <div class="panel-header">
+        <h3>🎮 DFA Monitor</h3>
+      </div>
+      <div class="panel-section">
+        <div class="panel-label">Current State</div>
+        <div class="panel-value state-value" id="panelState">Q0_IDLE</div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-label">Last Event</div>
+        <div class="panel-value" id="panelLastSymbol">-</div>
+      </div>
+      <div class="panel-section" id="panelSelectionSection" style="display: none;">
+        <div class="panel-label">Selected Drink</div>
+        <div class="panel-value" id="panelDrinkName">-</div>
+        <div class="panel-label">Price</div>
+        <div class="panel-value price-value" id="panelPrice">$0</div>
+      </div>
+      <div class="panel-section" id="panelPaymentSection" style="display: none;">
+        <div class="panel-label">Paid</div>
+        <div class="panel-value paid-value" id="panelPaid">$0</div>
+        <div class="panel-label">Remaining</div>
+        <div class="panel-value remaining-value" id="panelRemaining">$0</div>
+      </div>
+      <div class="panel-section" id="panelChangeSection" style="display: none;">
+        <div class="panel-label">Change</div>
+        <div class="panel-value change-value" id="panelChange">$0</div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-label">Transition Log</div>
+        <div id="transitionLog" class="transition-log"></div>
+      </div>
     </div>
 
-    <!-- Payment Status Display -->
-    <div id="paymentStatus">
-      <div>Price: <span id="displayPrice">$0</span></div>
-      <div class="amount-paid">Paid: <span id="displayPaid">$0</span></div>
-      <div class="amount-remaining">Left: <span id="displayRemaining">$0</span></div>
-    </div>
-
-    <div class="row" style="padding:40px 30px 0 30px ;height:600px">
-      <div class="col-9" id="beverages">
-        <div class="row justify-content-center">
-          <img src="https://assets.codepen.io/4977637/baverages-bg.png"  style="width:350px;height:550px" />
+    <div class="container" >
+      <div class="container" id="machinebody" style="position: relative">
+        <!-- Cash Slot inside machine -->
+        <div id="cashSlot">
+          <div class="slot-label">DROP COINS<br />HERE</div>
         </div>
-        <div style="position:absolute;bottom:55px">
-           <div class="row" class="selection" >
+
+        <!-- Payment Status Display -->
+        <div id="paymentStatus">
+          <div>Price: <span id="displayPrice">$0</span></div>
+          <div class="amount-paid">Paid: <span id="displayPaid">$0</span></div>
+          <div class="amount-remaining">
+            Left: <span id="displayRemaining">$0</span>
+          </div>
+        </div>
+
+        <div class="row" style="padding: 40px 30px 0 30px; height: 600px">
+          <div class="col-9" id="beverages">
+            <div class="row justify-content-center">
+              <img
+                src="https://assets.codepen.io/4977637/baverages-bg.png"
+                style="width: 350px; height: 550px"
+              />
+            </div>
+            <div style="position: absolute; bottom: 55px">
+              <div class="row" class="selection">
+                <div class="col">
+                  <div class="row drinks1 align-items-end">
+                    <div class="col" style="padding: 0 0 0 10px">
+                      <img
+                        id="1.1.1"
+                        src="https://assets.codepen.io/4977637/KIMURA_1.png"
+                        style="width: 25px; height: auto; position: relative"
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.2.1"
+                        src="https://assets.codepen.io/4977637/KIMURA_1.png"
+                        style="width: 25px; height: auto; position: relative"
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.3.1"
+                        src="https://assets.codepen.io/4977637/ramune+soda.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 2px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.4.1"
+                        src="https://assets.codepen.io/4977637/calpico+strawberry.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 6px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.5.1"
+                        src="https://assets.codepen.io/4977637/calpico.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 8px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.6.1"
+                        src="https://assets.codepen.io/4977637/5851f0614325c889cd3957dda14d2cc8_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 10px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="1.7.1"
+                        src="https://assets.codepen.io/4977637/a156c74b24f985fe3795b12cb0a08a4f_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 12px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0 10px 0 0">
+                      <img
+                        id="1.8.1"
+                        src="https://assets.codepen.io/4977637/b4ffc722ddbe83fd9b9cbca3044bbfdc_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 14px;
+                        "
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <img
+                      src="https://assets.codepen.io/4977637/selectiongroup1.png"
+                      style="width: 350px; height: 40px"
+                    />
+                  </div>
+                  <div
+                    class="row"
+                    style="position: relative; right: 4px; bottom: 26px"
+                  >
+                    <div class="col button">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        id="1.1"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 14px"
+                        id="1.2"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 15px"
+                        id="1.3"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 16px"
+                        id="1.4"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 18px"
+                        id="1.5"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 20px"
+                        id="1.6"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 22px"
+                        id="1.7"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 24px"
+                        id="1.8"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row" class="selection">
+                <div class="col">
+                  <div class="row drinks2 align-items-end">
+                    <div class="col" style="padding: 0 0 0 10px">
+                      <img
+                        id="2.1.1"
+                        src="https://assets.codepen.io/4977637/fe5db20a3398fa644c29f22fe42ddbfb_625x625.png"
+                        style="width: 30px; height: auto; position: relative"
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.2.1"
+                        src="https://assets.codepen.io/4977637/wangzai.png"
+                        style="
+                          width: 35px;
+                          height: auto;
+                          position: relative;
+                          right: 2px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.3.1"
+                        src="https://assets.codepen.io/4977637/plum+wine.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 2px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.4.1"
+                        src="https://assets.codepen.io/4977637/f220e3b25aa7aa2c9a751e8a8eb743d2_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 6px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.5.1"
+                        src="https://assets.codepen.io/4977637/e3c7d6c4985d2e086ff90fa890218ac2_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 8px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.6.1"
+                        src="https://assets.codepen.io/4977637/fujiya+nectar.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 10px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="2.7.1"
+                        src="https://assets.codepen.io/4977637/75e76c12e74df94a60ed60b967eafce6_625x625.png"
+                        style="
+                          width: 35px;
+                          height: auto;
+                          position: relative;
+                          right: 12px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0 10px 0 0">
+                      <img
+                        id="2.8.1"
+                        src="https://assets.codepen.io/4977637/donga+soda+peach.png"
+                        style="
+                          width: 25px;
+                          height: auto;
+                          position: relative;
+                          right: 14px;
+                        "
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <img
+                      src="https://assets.codepen.io/4977637/selectiongroup1.png"
+                      style="width: 350px; height: 40px"
+                    />
+                  </div>
+                  <div
+                    class="row"
+                    style="position: relative; right: 4px; bottom: 26px"
+                  >
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        id="2.1"
+                        onclick="select(this,beverages)"
+                        style="position: relative; left: 15px"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 12px"
+                        id="2.2"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 8px"
+                        id="2.3"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 2px"
+                        id="2.4"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 2px"
+                        id="2.5"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 8px"
+                        id="2.6"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 15px"
+                        id="2.7"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 20px"
+                        id="2.8"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row" class="selection">
+                <div class="col">
+                  <div class="row drinks3 align-items-end">
+                    <div class="col" style="padding: 0 0 0 10px">
+                      <img
+                        id="3.1.1"
+                        src="https://assets.codepen.io/4977637/fe5db20a3398fa644c29f22fe42ddbfb_625x625.png"
+                        style="width: 30px; height: auto; position: relative"
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.2.1"
+                        src="https://assets.codepen.io/4977637/wangzai.png"
+                        style="
+                          width: 35px;
+                          height: auto;
+                          position: relative;
+                          right: 2px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.3.1"
+                        src="https://assets.codepen.io/4977637/plum+wine.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 2px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.4.1"
+                        src="https://assets.codepen.io/4977637/f220e3b25aa7aa2c9a751e8a8eb743d2_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 6px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.5.1"
+                        src="https://assets.codepen.io/4977637/e3c7d6c4985d2e086ff90fa890218ac2_625x625.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 8px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.6.1"
+                        src="https://assets.codepen.io/4977637/fujiya+nectar.png"
+                        style="
+                          width: 30px;
+                          height: auto;
+                          position: relative;
+                          right: 10px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0">
+                      <img
+                        id="3.7.1"
+                        src="https://assets.codepen.io/4977637/75e76c12e74df94a60ed60b967eafce6_625x625.png"
+                        style="
+                          width: 35px;
+                          height: auto;
+                          position: relative;
+                          right: 12px;
+                        "
+                      />
+                    </div>
+                    <div class="col" style="padding: 0 10px 0 0">
+                      <img
+                        id="3.8.1"
+                        src="https://assets.codepen.io/4977637/donga+soda+peach.png"
+                        style="
+                          width: 25px;
+                          height: auto;
+                          position: relative;
+                          right: 14px;
+                        "
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <img
+                      src="https://assets.codepen.io/4977637/selectiongroup1.png"
+                      style="width: 350px; height: 40px"
+                    />
+                  </div>
+                  <div
+                    class="row"
+                    style="position: relative; right: 4px; bottom: 26px"
+                  >
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        id="3.1"
+                        onclick="select(this,beverages)"
+                        style="position: relative; left: 15px"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 12px"
+                        id="3.2"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 8px"
+                        id="3.3"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; left: 2px"
+                        id="3.4"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 2px"
+                        id="3.5"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 8px"
+                        id="3.6"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 15px"
+                        id="3.7"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                    <div class="col button" style="padding: 0">
+                      <img
+                        src="https://assets.codepen.io/4977637/button.png"
+                        width="30px"
+                        style="position: relative; right: 20px"
+                        id="3.8"
+                        onclick="select(this,beverages)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-3" id="insertkey">
+            <div class="row" style="height: 150px"></div>
+
+            <!-- شاشة الرسائل -->
+            <div class="row justify-content-center" style="height: 100px">
+              <div class="col" id="message" style="position: relative;">
+                <p
+                  style="
+                    position: absolute;
+                    top: 38px;
+                    left: 40px;
+                    font-size: 7px;
+                    z-index: 999;
+                    color: #000;
+                    font-weight: bold;
+                    line-height: 1.3;
+                    width: 70px;
+                    text-align: left;
+                    word-wrap: break-word;
+                  "
+                ></p>
+                <img
+                  src="https://assets.codepen.io/4977637/greyinterface.png"
+                  width="80px"
+                  style="position: relative; top: 30px; left: 15px; z-index: 1"
+                />
+              </div>
+            </div>
+
+            <!-- زر إدخال الكاش -->
+            <div class="row align-items-end" style="height: 110px">
+              <div class="col">
+                <img
+                  src="https://assets.codepen.io/4977637/insertkey.png"
+                  width="50px"
+                  style="position: relative; left: 50px; z-index: 0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="padding: 0 0 10px 0">
           <div class="col">
-            <div class="row drinks1 align-items-end">
-              <div class="col" style="padding:0 0 0 10px;"><img id="1.1.1" src="https://assets.codepen.io/4977637/KIMURA_1.png" style="width:25px;height:auto;position:relative;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.2.1" src="https://assets.codepen.io/4977637/KIMURA_1.png" style="width:25px;height:auto;position:relative;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.3.1" src="https://assets.codepen.io/4977637/ramune+soda.png" style="width:30px;height:auto;position:relative;right:2px" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.4.1" src="https://assets.codepen.io/4977637/calpico+strawberry.png" style="width:30px;height:auto;position:relative;right:6px" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.5.1" src="https://assets.codepen.io/4977637/calpico.png" style="width:30px;height:auto;position:relative;right:8px" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.6.1" src="https://assets.codepen.io/4977637/5851f0614325c889cd3957dda14d2cc8_625x625.png" style="width:30px;height:auto;position:relative;right:10px" />
-              </div>
-              <div class="col" style="padding:0;"><img id="1.7.1" src="https://assets.codepen.io/4977637/a156c74b24f985fe3795b12cb0a08a4f_625x625.png" style="width:30px;height:auto;position:relative;right:12px" />
-              </div>
-              <div class="col" style="padding:0 10px 0 0;"><img id="1.8.1" src="https://assets.codepen.io/4977637/b4ffc722ddbe83fd9b9cbca3044bbfdc_625x625.png" style="width:30px;height:auto;position:relative;right:14px" />
-              </div>
-            </div>
-            <div class="row">
-              <img src="https://assets.codepen.io/4977637/selectiongroup1.png" style="width:350px;height:40px" />
-            </div>
-            <div class="row" style="position:relative;right:4px;bottom:26px;">
-              <div class="col button" >
-                <img src="https://assets.codepen.io/4977637/button.png" width="30px" id="1.1" onclick="select(this,beverages)"/>
-              </div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:14px;" id="1.2" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:15px;" id="1.3" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:16px;" id="1.4" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:18px;" id="1.5" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:20px;" id="1.6" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:22px;" id="1.7" onclick="select(this,beverages)"/></div>
-              <div class="col button"style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:24px;" id="1.8" onclick="select(this,beverages)"/></div>
-            </div>
+            <img
+              id="brandlogo"
+              src="https://assets.codepen.io/4977637/brandlogo.png"
+              style="width: 200px; position: relative; left: 125px"
+            />
           </div>
         </div>
-           <div class="row" class="selection" >
-          <div class="col">
-            <div class="row drinks2 align-items-end">
-              <div class="col" style="padding:0 0 0 10px;"><img id="2.1.1" src="https://assets.codepen.io/4977637/fe5db20a3398fa644c29f22fe42ddbfb_625x625.png" style="width:30px;height:auto;position:relative;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.2.1" src="https://assets.codepen.io/4977637/wangzai.png" style="width:35px;height:auto;position:relative;right:2px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.3.1" src="https://assets.codepen.io/4977637/plum+wine.png" style="width:30px;height:auto;position:relative;right:2px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.4.1" src="https://assets.codepen.io/4977637/f220e3b25aa7aa2c9a751e8a8eb743d2_625x625.png" style="width:30px;height:auto;position:relative;right:6px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.5.1" src="https://assets.codepen.io/4977637/e3c7d6c4985d2e086ff90fa890218ac2_625x625.png" style="width:30px;height:auto;position:relative;right:8px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.6.1" src="https://assets.codepen.io/4977637/fujiya+nectar.png" style="width:30px;height:auto;position:relative;right:10px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="2.7.1" src="https://assets.codepen.io/4977637/75e76c12e74df94a60ed60b967eafce6_625x625.png" style="width:35px;height:auto;position:relative;right:12px;" />
-              </div>
-              <div class="col" style="padding:0 10px 0 0;"><img id="2.8.1" src="https://assets.codepen.io/4977637/donga+soda+peach.png" style="width:25px;height:auto;position:relative;right:14px;" />
-              </div>
-            </div>
-            <div class="row">
-              <img src="https://assets.codepen.io/4977637/selectiongroup1.png" style="width:350px;height:40px" />
-            </div>
-            <div class="row" style="position:relative;right:4px;bottom:26px;">
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px"id="2.1" onclick="select(this,beverages)" style="position:relative;left:15px"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:12px;" id="2.2" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:8px;" id="2.3" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:2px;" id="2.4" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:2px;" id="2.5" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:8px;" id="2.6" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:15px;" id="2.7" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:20px;" id="2.8" onclick="select(this,beverages)"/></div>
-            </div>
+        <div class="row align-items-end" style="padding: 0 0 40px 40px">
+          <div class="col-8" id="getdrink">
+            <img
+              src="https://assets.codepen.io/4977637/getdrink1.png"
+              width="300px"
+              style="position: relative; z-index: 7"
+            />
+            <img
+              src="https://assets.codepen.io/4977637/getdrink2.png"
+              width="300px"
+              style="position: absolute; bottom: 40px; z-index: 9"
+              id="cover"
+              onclick=""
+            />
+          </div>
+
+        </div>
+        <div class="row" style="padding: 70px 0 0 0">
+          <img src="https://assets.codepen.io/4977637/seam.png" width="500px" />
+        </div>
+        <div
+          class="row justify-content-between"
+          style="position: relative; top: 49px"
+        >
+          <div class="col-4">
+            <img
+              src="https://assets.codepen.io/4977637/leftleg.png"
+              width="70px"
+            />
+          </div>
+          <div class="col-4">
+            <img
+              src="https://assets.codepen.io/4977637/rightleg.png"
+              width="70px"
+              style="position: relative; left: 60px"
+            />
           </div>
         </div>
-           <div class="row" class="selection" >
-          <div class="col">
-            <div class="row drinks3 align-items-end">
-              <div class="col" style="padding:0 0 0 10px;"><img id="3.1.1" src="https://assets.codepen.io/4977637/fe5db20a3398fa644c29f22fe42ddbfb_625x625.png" style="width:30px;height:auto;position:relative;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.2.1" src="https://assets.codepen.io/4977637/wangzai.png" style="width:35px;height:auto;position:relative;right:2px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.3.1" src="https://assets.codepen.io/4977637/plum+wine.png" style="width:30px;height:auto;position:relative;right:2px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.4.1" src="https://assets.codepen.io/4977637/f220e3b25aa7aa2c9a751e8a8eb743d2_625x625.png" style="width:30px;height:auto;position:relative;right:6px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.5.1" src="https://assets.codepen.io/4977637/e3c7d6c4985d2e086ff90fa890218ac2_625x625.png" style="width:30px;height:auto;position:relative;right:8px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.6.1" src="https://assets.codepen.io/4977637/fujiya+nectar.png" style="width:30px;height:auto;position:relative;right:10px;" />
-              </div>
-              <div class="col" style="padding:0;"><img id="3.7.1" src="https://assets.codepen.io/4977637/75e76c12e74df94a60ed60b967eafce6_625x625.png" style="width:35px;height:auto;position:relative;right:12px;" />
-              </div>
-              <div class="col" style="padding:0 10px 0 0;"><img id="3.8.1" src="https://assets.codepen.io/4977637/donga+soda+peach.png" style="width:25px;height:auto;position:relative;right:14px;" />
-              </div>
-            </div>
-            <div class="row">
-              <img src="https://assets.codepen.io/4977637/selectiongroup1.png" style="width:350px;height:40px" />
-            </div>
-            <div class="row" style="position:relative;right:4px;bottom:26px;">
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px"id="3.1" onclick="select(this,beverages)" style="position:relative;left:15px"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:12px;" id="3.2" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:8px;" id="3.3" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;left:2px;" id="3.4" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:2px;" id="3.5" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:8px;" id="3.6" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:15px;" id="3.7" onclick="select(this,beverages)"/></div>
-              <div class="col button" style="padding:0"><img src="https://assets.codepen.io/4977637/button.png" width="30px" style="position:relative;right:20px;" id="3.8" onclick="select(this,beverages)"/></div>
-            </div>
-          </div>
-        </div>
-        
-        </div>
-       
-      </div>
-      <div class="col-3" id="insertkey">
-
-        <div class="row" style="height:150px"></div>
-
-        <div class="row justify-content-center">
-          <img id="compo1" src="https://assets.codepen.io/4977637/component1_1.png" style="width:50px" />
-        </div>
-
-        <!-- شاشة الرسائل -->
-        <div class="row justify-content-center" style="height:100px">
-          <div class="col" id="message">
-            <p style="position:absolute;top:30px;left:35px;font-size:8px;z-index:2"></p>
-            <img src="https://assets.codepen.io/4977637/greyinterface.png"
-                 width="80px"
-                 style="position:relative;top:30px;left:15px;z-index:1"/>
-          </div>
-        </div>
-
-        <!-- زر إدخال الكاش -->
-        <div class="row align-items-end" style="height:110px;">
-          <div class="col">
-            <img src="https://assets.codepen.io/4977637/insertkey.png"
-                 width="50px"
-                 style="position:relative;left:50px;z-index:0;" />
-          </div>
-        </div>
-
-
-
       </div>
     </div>
-    <div class="row" style="padding:0 0 10px 0">
-      <div class="col">
-        <img id="brandlogo" src="https://assets.codepen.io/4977637/brandlogo.png" style="width:200px;position:relative;left:125px;" />
+
+    <!-- Coins Box (Side) -->
+    <div id="coinsBox">
+      <div class="coins-box-header">
+        <h4>💰 العملات - Coins</h4>
+        <div class="subtitle">اسحب العملات للماكينة</div>
+      </div>
+
+      <div id="coinTray"></div>
+
+      <div class="coins-info">
+        <div>السعر - Price: <span class="price" id="sidePrice">$0</span></div>
+        <div>المدفوع - Paid: <span class="paid" id="sidePaid">$0</span></div>
+        <div>
+          الباقي - Left: <span class="remaining" id="sideRemaining">$0</span>
+        </div>
       </div>
     </div>
-    <div class="row align-items-end" style="padding:0 0 40px 40px">
-      <div class="col-8" id="getdrink">
-        <img src="https://assets.codepen.io/4977637/getdrink1.png" width="300px" style="position:relative;z-index:7"/>
-        <img src="https://assets.codepen.io/4977637/getdrink2.png" width="300px" style="position:absolute;bottom:40px;z-index:9"  id="cover"onclick=""/>
-      </div>
-      <div class="col-3">
-        <img src="https://assets.codepen.io/4977637/outlet2.png" width="40px" style="position:relative;left:50px" />
-      </div>
-    </div>
-    <div class="row" style="padding:70px 0 0 0">
-      <img src="https://assets.codepen.io/4977637/seam.png" width="500px" />
-    </div>
-    <div class="row justify-content-between" style="position:relative;top:49px">
-      <div class="col-4">
-        <img src="https://assets.codepen.io/4977637/leftleg.png" width="70px" />
-      </div>
-      <div class="col-4"><img src="https://assets.codepen.io/4977637/rightleg.png" width="70px" style="position:relative;left:60px" /></div>
 
-    </div>
-  </div>
-</div>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
 
-<!-- Coins Box (Side) -->
-<div id="coinsBox">
-  <div class="coins-box-header">
-    <h4>💰 العملات - Coins</h4>
-    <div class="subtitle">اسحب العملات للماكينة</div>
-  </div>
-  
-  <div id="coinTray"></div>
-  
-  <div class="coins-info">
-    <div>السعر - Price: <span class="price" id="sidePrice">$0</span></div>
-    <div>المدفوع - Paid: <span class="paid" id="sidePaid">$0</span></div>
-    <div>الباقي - Left: <span class="remaining" id="sideRemaining">$0</span></div>
-  </div>
-</div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
-    integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
-    crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
+      integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
+      crossorigin="anonymous"
+    ></script>
 
- 
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>

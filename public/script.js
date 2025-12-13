@@ -5,6 +5,142 @@
    - Polling for QR payment status
    ========================= */
 
+// -------------------- Sound System --------------------
+const SoundFX = (() => {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  
+  function playTone(frequency, duration, type = 'sine', volume = 0.1) {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+    gainNode.gain.value = volume;
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+  }
+  
+  return {
+    select: () => playTone(800, 0.1, 'sine', 0.08),
+    yes: () => playTone(1000, 0.15, 'sine', 0.1),
+    no: () => playTone(400, 0.2, 'sine', 0.08),
+    coin: () => {
+      playTone(1200, 0.05, 'sine', 0.12);
+      setTimeout(() => playTone(900, 0.05, 'sine', 0.1), 50);
+    },
+    success: () => {
+      playTone(800, 0.1, 'sine', 0.1);
+      setTimeout(() => playTone(1000, 0.1, 'sine', 0.1), 100);
+      setTimeout(() => playTone(1200, 0.2, 'sine', 0.12), 200);
+    },
+    cancel: () => {
+      playTone(600, 0.1, 'square', 0.08);
+      setTimeout(() => playTone(400, 0.15, 'square', 0.08), 100);
+    },
+    dispense: () => {
+      playTone(500, 0.15, 'sawtooth', 0.1);
+      setTimeout(() => playTone(450, 0.15, 'sawtooth', 0.1), 150);
+    },
+    doorOpen: () => playTone(1500, 0.1, 'triangle', 0.08),
+    take: () => playTone(1200, 0.15, 'sine', 0.1)
+  };
+})();
+
+// -------------------- State Panel Manager --------------------
+const StatePanel = (() => {
+  const transitionHistory = [];
+  const maxHistory = 10;
+  
+  function updateState(state) {
+    const el = document.getElementById('panelState');
+    if (el) el.textContent = state;
+  }
+  
+  function updateLastSymbol(symbol) {
+    const el = document.getElementById('panelLastSymbol');
+    if (el) el.textContent = symbol || '-';
+  }
+  
+  function updateSelection(drink) {
+    const section = document.getElementById('panelSelectionSection');
+    const name = document.getElementById('panelDrinkName');
+    const price = document.getElementById('panelPrice');
+    
+    if (drink) {
+      if (section) section.style.display = 'block';
+      if (name) name.textContent = drink.name;
+      if (price) price.textContent = `$${drink.price.toFixed(2)}`;
+    } else {
+      if (section) section.style.display = 'none';
+    }
+  }
+  
+  function updatePayment(paid, remaining, price) {
+    const section = document.getElementById('panelPaymentSection');
+    const paidEl = document.getElementById('panelPaid');
+    const remainingEl = document.getElementById('panelRemaining');
+    
+    if (paid > 0 || remaining > 0) {
+      if (section) section.style.display = 'block';
+      if (paidEl) paidEl.textContent = `$${paid.toFixed(2)}`;
+      if (remainingEl) remainingEl.textContent = `$${remaining.toFixed(2)}`;
+    } else {
+      if (section) section.style.display = 'none';
+    }
+  }
+  
+  function updateChange(change) {
+    const section = document.getElementById('panelChangeSection');
+    const changeEl = document.getElementById('panelChange');
+    
+    if (change > 0) {
+      if (section) section.style.display = 'block';
+      if (changeEl) changeEl.textContent = `$${change.toFixed(2)}`;
+    } else {
+      if (section) section.style.display = 'none';
+    }
+  }
+  
+  function addTransition(from, symbol, to) {
+    transitionHistory.push({ from, symbol, to, time: new Date().toLocaleTimeString() });
+    if (transitionHistory.length > maxHistory) {
+      transitionHistory.shift();
+    }
+    renderTransitionLog();
+  }
+  
+  function renderTransitionLog() {
+    const log = document.getElementById('transitionLog');
+    if (!log) return;
+    
+    log.innerHTML = transitionHistory
+      .slice()
+      .reverse()
+      .map(t => `<div>${t.time}: ${t.from} --${t.symbol}--> ${t.to}</div>`)
+      .join('');
+  }
+  
+  function reset() {
+    updateSelection(null);
+    updatePayment(0, 0, 0);
+    updateChange(0);
+  }
+  
+  return {
+    updateState,
+    updateLastSymbol,
+    updateSelection,
+    updatePayment,
+    updateChange,
+    addTransition,
+    reset
+  };
+})();
+
 // -------------------- Drinks Data (frontend copy) --------------------
 // This is for showing selection info quickly.
 // Real stock is enforced by backend at /api/payments create + /pay/:id/confirm.
@@ -253,6 +389,26 @@ const UI = (() => {
     messageBox.appendChild(exit);
   }
 
+  function addCancelButton(onCancel) {
+    removeCancelButton();
+    
+    const machineBody = document.getElementById('machinebody');
+    if (!machineBody) return;
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.id = 'globalCancelBtn';
+    cancelBtn.className = 'cancel-button';
+    cancelBtn.textContent = '✖ CANCEL';
+    cancelBtn.onclick = onCancel;
+    
+    machineBody.appendChild(cancelBtn);
+  }
+  
+  function removeCancelButton() {
+    const btn = document.getElementById('globalCancelBtn');
+    if (btn) btn.remove();
+  }
+
   function renderLoader() {
     const oldLoader = messageBox ? messageBox.querySelector(".loader") : null;
     if (oldLoader) oldLoader.remove();
@@ -385,6 +541,8 @@ const UI = (() => {
     clearButtons,
     addConfirmButtons,
     addPayButtons,
+    addCancelButton,
+    removeCancelButton,
     renderLoader,
     renderTickThenSmile,
     flashGreenButton,
@@ -772,6 +930,22 @@ class VendingDFA {
     }
 
     console.log(`DFA: ${this.state} + ${symbol} → ${next}`);
+    
+    // Update state panel
+    StatePanel.addTransition(this.state, symbol, next);
+    StatePanel.updateLastSymbol(symbol);
+    
+    // Play sounds based on symbol
+    if (symbol === Symbol.select) SoundFX.select();
+    else if (symbol === Symbol.yes) SoundFX.yes();
+    else if (symbol === Symbol.no) SoundFX.no();
+    else if (symbol === Symbol.coin) SoundFX.coin();
+    else if (symbol === Symbol.cancel) SoundFX.cancel();
+    else if (symbol === Symbol.qrOk) SoundFX.success();
+    else if (symbol === Symbol.dispense) SoundFX.dispense();
+    else if (symbol === Symbol.openBox) SoundFX.doorOpen();
+    else if (symbol === Symbol.take) SoundFX.take();
+    
     this.state = next;
     this.render();
     this.onStateEntered();
@@ -779,12 +953,47 @@ class VendingDFA {
 
   render(extra = "") {
     const d = this.selected;
-    let info = "";
-    if (d) info = `\nSelected: ${d.name}\nPrice: $${d.price}`;
+    
+    // Update State Panel
+    StatePanel.updateState(this.state);
+    StatePanel.updateSelection(d);
+    
+    const price = d ? Number(d.price) : 0;
+    const remaining = price - this.paidAmount;
+    StatePanel.updatePayment(this.paidAmount, remaining > 0 ? remaining : 0, price);
+    StatePanel.updateChange(this.change);
+    
+    // Clear old HUD (if it exists)
+    const hudState = document.getElementById("hudState");
+    const hudSelection = document.getElementById("hudSelection");
+    const hudDrinkName = document.getElementById("hudDrinkName");
+    const hudPrice = document.getElementById("hudPrice");
+    const hudDrinkPrice = document.getElementById("hudDrinkPrice");
+    const hudExtra = document.getElementById("hudExtra");
+    
+    if (hudState) {
+      hudState.textContent = this.state;
+    }
+    
+    if (d) {
+      if (hudSelection) hudSelection.style.display = "flex";
+      if (hudDrinkName) hudDrinkName.textContent = d.name;
+      if (hudPrice) hudPrice.style.display = "flex";
+      if (hudDrinkPrice) hudDrinkPrice.textContent = `$${d.price}`;
+    } else {
+      if (hudSelection) hudSelection.style.display = "none";
+      if (hudPrice) hudPrice.style.display = "none";
+    }
+    
+    if (hudExtra) {
+      hudExtra.textContent = extra;
+    }
 
-    UI.setMsg(
-      `Current State:\n${this.state}${info}${extra ? "\n\n" + extra : ""}`
-    );
+    // DON'T clear messages - let them persist until explicitly changed
+    // Only set message if extra is provided
+    if (extra) {
+      UI.setMsg(extra);
+    }
 
     // Only certain states show white interface
     const whiteInterfaceStates = [State.Q1_CONFIRM_SELECTION, State.Q2_CHOOSE_PAYMENT, State.Q3_CASH_INSERTION, State.Q4_QR_PENDING];
@@ -810,6 +1019,9 @@ class VendingDFA {
 
     // Hide cash UI
     if (window.CashUI) CashUI.hide();
+    
+    // Remove cancel button
+    UI.removeCancelButton();
   }
 
   onStateEntered() {
@@ -818,6 +1030,8 @@ class VendingDFA {
       this.cleanupAsync();
       UI.clearButtons();
       UI.resetDoorCover();
+      UI.setMsg(""); // Clear message in idle state
+      StatePanel.reset();
       this.selected = null;
       this.paidAmount = 0;
       this.change = 0;
@@ -827,6 +1041,8 @@ class VendingDFA {
 
     // Q1_CONFIRM_SELECTION: Show YES/NO buttons, check for SOLD OUT
     if (this.state === State.Q1_CONFIRM_SELECTION) {
+      UI.setMsg("Confirm selection?\nPress YES or NO");
+      
       // Check stock immediately on entering Q1
       if (this.selected) {
         // Fetch current stock from backend
@@ -835,7 +1051,7 @@ class VendingDFA {
           .then(data => {
             if (data.stock <= 0) {
               // SOLD OUT: trigger soldOut symbol
-              UI.setMsg(`Current State:\n${this.state}\n\n❌ SOLD OUT\n${this.selected.name}\nis not available`);
+              UI.setMsg(`❌ SOLD OUT\n\n${this.selected.name}\nis not available`);
               setTimeout(() => {
                 this.clearSelectionVisual();
                 this.step(Symbol.soldOut);
@@ -858,6 +1074,7 @@ class VendingDFA {
 
     // Q2_CHOOSE_PAYMENT: Show QR/CASH/Cancel buttons, start timeout
     if (this.state === State.Q2_CHOOSE_PAYMENT) {
+      UI.setMsg("Choose payment:\nQR or CASH");
       UI.setScreen("https://assets.codepen.io/4977637/whiteinterface.png");
       UI.addPayButtons(
         () => this.payByQR(),
@@ -867,6 +1084,12 @@ class VendingDFA {
           this.step(Symbol.cancel);
         }
       );
+      
+      // Add cancel button on machine body
+      UI.addCancelButton(() => {
+        this.clearSelectionVisual();
+        this.step(Symbol.cancel);
+      });
 
       // Start timeout for Q2
       TimeoutManager.start(() => {
@@ -878,7 +1101,16 @@ class VendingDFA {
 
     // Q3_CASH_INSERTION: Enable coin drops, start timeout
     if (this.state === State.Q3_CASH_INSERTION) {
+      UI.setMsg("Insert coins\nDrag coins from\nwallet to slot");
+      
       // Cash UI is shown by payByCash method
+      
+      // Add cancel button on machine body
+      UI.addCancelButton(() => {
+        this.clearSelectionVisual();
+        this.step(Symbol.cancel);
+      });
+      
       // Start timeout for Q3
       TimeoutManager.start(() => {
         console.log("⏰ Timeout in Q3_CASH_INSERTION");
@@ -890,6 +1122,13 @@ class VendingDFA {
     // Q4_QR_PENDING: Handled by payByQR method (creates QR, starts polling, starts timeout)
     if (this.state === State.Q4_QR_PENDING) {
       // QR creation and polling is initiated by payByQR
+      
+      // Add cancel button on machine body
+      UI.addCancelButton(() => {
+        this.cleanupAsync();
+        this.step(Symbol.cancel);
+      });
+      
       return;
     }
 
@@ -1068,7 +1307,8 @@ class VendingDFA {
 
     if (window.CashUI) CashUI.hide();
     UI.clearButtons();
-    UI.setMsg(`Current State:\n${this.state}\n\nCreating QR...`);
+    // بعد ما يختار المستخدم طريقة الدفع (QR) امسح رسالة "Choose payment"
+    UI.setMsg("");
 
     const res = await fetch(`/api/payments`, {
       method: "POST",
@@ -1079,7 +1319,7 @@ class VendingDFA {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      UI.setMsg(`❌ Error:\n${data.error || "Failed to create payment"}`);
+      UI.setMsg(`❌ Payment Error\n\n${data.error || "Failed to create payment"}`);
       // Return to Q2
       this.step(Symbol.qrFail);
       return;
@@ -1088,9 +1328,7 @@ class VendingDFA {
     this.paymentId = data.paymentId;
 
     UI.setScreen(data.qr);
-    UI.setMsg(
-      `Current State:\n${this.state}\n\nScan QR from mobile.\nPress Confirm Payment.\n\nWaiting...`
-    );
+    
 
     // Start polling for payment status
     this.pollTimer = setInterval(async () => {

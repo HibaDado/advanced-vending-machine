@@ -2,9 +2,10 @@ import express from "express";
 import fs from "fs";
 import QRCode from "qrcode";
 import { randomUUID } from "crypto";
+import cron from "node-cron";
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -22,6 +23,11 @@ function writeJson(file, data) {
 function getBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
+
+// Simple health endpoint for uptime checks
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 // ---- Drinks ----
 app.get("/api/drinks", (req, res) => {
@@ -140,6 +146,48 @@ app.post("/pay/:id/confirm", (req, res) => {
   res.json({ success: true, drinkId: drink.id, stock: drink.stock });
 });
 
+// ---- Cancel Payment (Simulation) ----
+app.post("/pay/:id/cancel", (req, res) => {
+  const paymentId = req.params.id;
+
+  const payments = readJson(PAYMENTS_FILE);
+  const p = payments.find(x => x.paymentId === paymentId);
+  
+  if (!p) return res.sendStatus(404);
+  
+  if (p.status === "paid") {
+    return res.status(400).json({ error: "Payment already completed" });
+  }
+  
+  if (p.status === "canceled") {
+    return res.json({ success: true, alreadyCanceled: true });
+  }
+
+  // Mark canceled
+  p.status = "canceled";
+  p.canceledAt = Date.now();
+
+  writeJson(PAYMENTS_FILE, payments);
+
+  res.json({ success: true, paymentId: p.paymentId });
+});
+
 app.listen(PORT, () => {
-  console.log(`✅ Running: http://localhost:${PORT}`);
+  console.log(`✅ Running on port ${PORT}`);
+
+  // Cron job to ping /health every 14 minutes to keep the service warm
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  const healthUrl = `${baseUrl}/health`;
+
+  // Runs every 14 minutes: */14 * * * *
+  cron.schedule('*/14 * * * *', async () => {
+    try {
+      const res = await fetch(healthUrl);
+      console.log("🔁 [CRON] Health ping status:", res.status);
+    } catch (err) {
+      console.error("⚠️ [CRON] Health ping failed:", err.message || err);
+    }
+  });
+
+  console.log("⏰ Cron job scheduled: health ping every 14 minutes");
 });

@@ -2,12 +2,16 @@
   "name": "vending-machine-sim",
   "version": "1.0.0",
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
+    "node-cron": "^3.0.3",
     "qrcode": "^1.5.4"
   }
 }

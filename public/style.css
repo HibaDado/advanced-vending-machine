@@ -1,12 +1,127 @@
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: url("./bg.jpg");
+  background-size: cover;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
   position: relative;
+}
+
+/* ============= LEFT SIDEBAR - STATE TRACKING PANEL ============= */
+#statePanel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(10, 14, 39, 0.98) 0%, rgba(26, 31, 58, 0.98) 50%, rgba(45, 27, 78, 0.98) 100%);
+  color: white;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  z-index: 2000;
+  border-right: 3px solid #8DB3AE;
+  backdrop-filter: blur(10px);
+}
+
+.panel-header {
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(141, 179, 174, 0.3);
+  margin-bottom: 20px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 20px;
+  background: linear-gradient(135deg, #8DB3AE, #a8d5cf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.panel-section {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: rgba(141, 179, 174, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(141, 179, 174, 0.2);
+}
+
+.panel-label {
+  font-size: 11px;
+  color: #a8dadc;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.panel-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.state-value {
+  color: #ffd700;
+  font-size: 15px;
+  animation: stateGlow 2s ease-in-out infinite;
+}
+
+@keyframes stateGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255,215,0,0.6); }
+  50% { text-shadow: 0 0 20px rgba(255,215,0,0.9); }
+}
+
+.price-value {
+  color: #8DB3AE;
+}
+
+.paid-value {
+  color: #00ffc8;
+}
+
+.remaining-value {
+  color: #ff3366;
+}
+
+.change-value {
+  color: #ffd700;
+}
+
+.transition-log {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  background: rgba(0,0,0,0.3);
+  padding: 8px;
+  border-radius: 5px;
+  color: #a8dadc;
+}
+
+.transition-log div {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(141, 179, 174, 0.1);
+}
+
+.transition-log div:last-child {
+  border-bottom: none;
+}
+
+/* OLD HUD - REMOVE */
+#stateHUD {
+  display: none;
 }
 
 #machinebody{
@@ -60,15 +175,15 @@ body {
 #coinsBox {
   position: fixed;
   right: 30px;
-  top: 150px;
-  width: 320px;
+  top: -8px;
+  width: 340px;
   background: 
-    linear-gradient(145deg, #0a0e27 0%, #1a1f3a 30%, #2d1b4e 70%, #1e0836 100%);
+    linear-gradient(145deg, #2d1b0e 0%, #3a2417 30%, #4a3020 70%, #3a2417 100%);
   border-radius: 25px;
   padding: 30px;
   box-shadow: 
     0 25px 50px rgba(0,0,0,0.7),
-    0 10px 25px rgba(138,43,226,0.3),
+    0 10px 25px rgba(141,179,174,0.3),
     inset 0 2px 1px rgba(255,255,255,0.15),
     inset 0 -2px 1px rgba(0,0,0,0.5);
   border: 3px solid transparent;
@@ -85,11 +200,11 @@ body {
   position: absolute;
   inset: -3px;
   background: linear-gradient(45deg, 
-    #ffd700 0%, 
-    #ff6ec7 25%, 
-    #7b2ff7 50%, 
-    #00d4ff 75%, 
-    #ffd700 100%);
+    #8DB3AE 0%, 
+    #ffd700 25%, 
+    #8DB3AE 50%, 
+    #ffd700 75%, 
+    #8DB3AE 100%);
   border-radius: 25px;
   z-index: -1;
   animation: borderGlow 3s linear infinite;
@@ -97,13 +212,13 @@ body {
 }
 
 #coinsBox::after {
-  content: '💎';
+  content: '👛';
   position: absolute;
   top: 15px;
   right: 20px;
   font-size: 24px;
-  animation: float 2.5s ease-in-out infinite, rotate 4s linear infinite;
-  filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
+  animation: float 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(141,179,174,0.8));
 }
 
 @keyframes borderGlow {
@@ -350,7 +465,7 @@ body {
 /* Cash Slot inside vending machine */
 #cashSlot {
   position: absolute;
-  top: 280px;
+  top: 420px;
   left: 385px;
   width: 90px;
   height: 100px;
@@ -400,7 +515,7 @@ body {
 /* Payment status display */
 #paymentStatus {
   position: absolute;
-  top: 390px;
+  top: 530px;
   left: 385px;
   width: 90px;
   background: rgba(44, 62, 80, 0.9);
@@ -533,9 +648,39 @@ body {
 #message {
   transition: all 0.3s ease;
 }
-
 #message p {
   text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ============= CANCEL BUTTON ============= */
+.cancel-button {
+  position: absolute;
+  top: 130px;
+  right: -30px;
+  transform: translateX(-50%);
+  padding: 10px 10px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  transition: all 0.3s ease;
+  z-index: 10;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cancel-button:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+  background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+.cancel-button:active {
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Responsive Design */
@@ -557,5 +702,10 @@ body {
   
   .balance-display {
     font-size: 28px !important;
+  }
+  
+  #statePanel {
+    width: 220px;
+    font-size: 12px;
   }
 }

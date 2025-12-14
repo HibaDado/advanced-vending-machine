@@ -212,7 +212,7 @@ const Symbol = Object.freeze({
   dispenseDone: "dispenseDone",
   openBox: "openBox",
   take: "take",
-  soldOut: "soldOut",
+  outOfStock: "outOfStock",
   noChange: "noChange"
 });
 
@@ -225,7 +225,7 @@ const delta = {
   [State.Q1_CONFIRM_SELECTION]: {
     [Symbol.yes]: State.Q2_CHOOSE_PAYMENT,
     [Symbol.no]: State.Q0_IDLE,
-    [Symbol.soldOut]: State.Q0_IDLE
+    [Symbol.outOfStock]: State.Q0_IDLE
   },
 
   [State.Q2_CHOOSE_PAYMENT]: {
@@ -475,6 +475,10 @@ const UI = (() => {
     const timer = setInterval(() => {
       if (pos >= limit) {
         clearInterval(timer);
+        // Remove the drink element after animation completes
+        if (drink && drink.parentElement) {
+          drink.remove();
+        }
       } else {
         pos++;
         drink.style.top = pos + "px";
@@ -799,12 +803,12 @@ const UI = (() => {
 
       const collectBtn = document.createElement("button");
       collectBtn.className = "collect-btn";
-      collectBtn.textContent = "خذ المصاري - Collect";
+      collectBtn.textContent = "Collect Money";
       collectBtn.style.cssText = `
         width: 100%;
         padding: 12px;
         margin-top: 15px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #eeb945ff 0%, #bb5936ff 100%);
         color: white;
         border: none;
         border-radius: 8px;
@@ -1050,11 +1054,11 @@ class VendingDFA {
           .then(res => res.json())
           .then(data => {
             if (data.stock <= 0) {
-              // SOLD OUT: trigger soldOut symbol
+              // SOLD OUT: trigger outOfStock symbol
               UI.setMsg(`❌ SOLD OUT\n\n${this.selected.name}\nis not available`);
               setTimeout(() => {
                 this.clearSelectionVisual();
-                this.step(Symbol.soldOut);
+                this.step(Symbol.outOfStock);
               }, 1500);
             }
           })
@@ -1375,7 +1379,7 @@ class VendingDFA {
 
     UI.clearButtons();
     UI.setMsg(
-      `Current State:\n${this.state}\n\n💰 اسحب العملات إلى المكان المخصص\nDrag coins to the cash slot`
+      `Drag coins to the cash slot`
     );
 
     if (window.CashUI) {
@@ -1457,6 +1461,154 @@ class VendingDFA {
     }
   }
 }
+
+// -------------------- DFA Testing & Verification --------------------
+// These functions verify that the DFA implementation matches the specification
+
+/**
+ * Dumps all transitions in the delta table
+ * @returns {Array} List of all transitions as {from, symbol, to}
+ */
+function dumpDelta() {
+  const transitions = [];
+  
+  for (const fromState in delta) {
+    for (const symbol in delta[fromState]) {
+      transitions.push({
+        from: fromState,
+        symbol: symbol,
+        to: delta[fromState][symbol]
+      });
+    }
+  }
+  
+  return transitions;
+}
+
+/**
+ * Asserts that the DFA matches the expected specification
+ * @returns {boolean} true if PASS, false if FAIL
+ */
+function assertDFA() {
+  console.log("=== DFA VERIFICATION TEST ===");
+  
+  // Expected transitions (source of truth from specification)
+  const expectedTransitions = [
+    // Q0
+    { from: State.Q0_IDLE, symbol: Symbol.select, to: State.Q1_CONFIRM_SELECTION },
+    
+    // Q1
+    { from: State.Q1_CONFIRM_SELECTION, symbol: Symbol.yes, to: State.Q2_CHOOSE_PAYMENT },
+    { from: State.Q1_CONFIRM_SELECTION, symbol: Symbol.no, to: State.Q0_IDLE },
+    { from: State.Q1_CONFIRM_SELECTION, symbol: Symbol.outOfStock, to: State.Q0_IDLE },
+    
+    // Q2
+    { from: State.Q2_CHOOSE_PAYMENT, symbol: Symbol.cash, to: State.Q3_CASH_INSERTION },
+    { from: State.Q2_CHOOSE_PAYMENT, symbol: Symbol.QR, to: State.Q4_QR_PENDING },
+    { from: State.Q2_CHOOSE_PAYMENT, symbol: Symbol.cancel, to: State.Q0_IDLE },
+    { from: State.Q2_CHOOSE_PAYMENT, symbol: Symbol.timeout, to: State.Q0_IDLE },
+    
+    // Q3
+    { from: State.Q3_CASH_INSERTION, symbol: Symbol.coin, to: State.Q3_CASH_INSERTION },
+    { from: State.Q3_CASH_INSERTION, symbol: Symbol.enough, to: State.Q6_PAYMENT_CONFIRMED },
+    { from: State.Q3_CASH_INSERTION, symbol: Symbol.over, to: State.Q5_RETURN_CHANGE },
+    { from: State.Q3_CASH_INSERTION, symbol: Symbol.cancel, to: State.Q9_REFUND },
+    { from: State.Q3_CASH_INSERTION, symbol: Symbol.timeout, to: State.Q9_REFUND },
+    
+    // Q4
+    { from: State.Q4_QR_PENDING, symbol: Symbol.qrOk, to: State.Q6_PAYMENT_CONFIRMED },
+    { from: State.Q4_QR_PENDING, symbol: Symbol.qrFail, to: State.Q2_CHOOSE_PAYMENT },
+    { from: State.Q4_QR_PENDING, symbol: Symbol.cancel, to: State.Q0_IDLE },
+    { from: State.Q4_QR_PENDING, symbol: Symbol.timeout, to: State.Q0_IDLE },
+    
+    // Q5
+    { from: State.Q5_RETURN_CHANGE, symbol: Symbol.refundDone, to: State.Q6_PAYMENT_CONFIRMED },
+    { from: State.Q5_RETURN_CHANGE, symbol: Symbol.noChange, to: State.Q9_REFUND },
+    
+    // Q6
+    { from: State.Q6_PAYMENT_CONFIRMED, symbol: Symbol.dispense, to: State.Q7_DISPENSING },
+    
+    // Q7
+    { from: State.Q7_DISPENSING, symbol: Symbol.dispenseDone, to: State.Q8_COLLECT_ITEM },
+    
+    // Q8
+    { from: State.Q8_COLLECT_ITEM, symbol: Symbol.openBox, to: State.Q8_COLLECT_ITEM },
+    { from: State.Q8_COLLECT_ITEM, symbol: Symbol.take, to: State.Q0_IDLE },
+    
+    // Q9
+    { from: State.Q9_REFUND, symbol: Symbol.refundDone, to: State.Q0_IDLE }
+  ];
+  
+  // Get actual transitions
+  const actualTransitions = dumpDelta();
+  
+  console.log("Expected transitions:", expectedTransitions.length);
+  console.log("Actual transitions:", actualTransitions.length);
+  
+  // Track results
+  const missing = [];
+  const extra = [];
+  let passed = true;
+  
+  // Check for missing transitions
+  for (const expected of expectedTransitions) {
+    const found = actualTransitions.find(
+      t => t.from === expected.from && t.symbol === expected.symbol && t.to === expected.to
+    );
+    
+    if (!found) {
+      missing.push(expected);
+      passed = false;
+    }
+  }
+  
+  // Check for extra transitions (implemented but not expected)
+  for (const actual of actualTransitions) {
+    const found = expectedTransitions.find(
+      t => t.from === actual.from && t.symbol === actual.symbol && t.to === actual.to
+    );
+    
+    if (!found) {
+      extra.push(actual);
+      passed = false;
+    }
+  }
+  
+  // Report results
+  if (missing.length > 0) {
+    console.error("❌ Missing transitions:");
+    missing.forEach(t => console.error(`  δ(${t.from}, ${t.symbol}) = ${t.to}`));
+  }
+  
+  if (extra.length > 0) {
+    console.error("❌ Extra transitions:");
+    extra.forEach(t => console.error(`  δ(${t.from}, ${t.symbol}) = ${t.to}`));
+  }
+  
+  // Final verdict
+  if (passed) {
+    console.log("✅ PASS: DFA implementation matches specification");
+  } else {
+    console.error("❌ FAIL: DFA implementation does NOT match specification");
+    console.error("See DFA_VERIFICATION_REPORT.md for details");
+  }
+  
+  return passed;
+}
+
+// Auto-run assertion on load (can be disabled for production)
+if (window.location.search.includes('debug') || window.location.search.includes('test')) {
+  window.addEventListener('load', () => {
+    console.log("\n=== AUTO-RUNNING DFA VERIFICATION ===");
+    assertDFA();
+    console.log("\nDelta dump:");
+    console.table(dumpDelta());
+  });
+}
+
+// Expose functions globally for testing
+window.dumpDelta = dumpDelta;
+window.assertDFA = assertDFA;
 
 // -------------------- Init DFA --------------------
 window.dfa = new VendingDFA();

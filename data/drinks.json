@@ -69,19 +69,19 @@
     "id": "2.4",
     "name": "Grape Cocktail (Non-alcoholic)",
     "price": 2.5,
-    "stock": 5
+    "stock": 4
   },
   {
     "id": "2.5",
     "name": "Orange Cocktail (Non-alcoholic)",
     "price": 2.5,
-    "stock": 2
+    "stock": 1
   },
   {
     "id": "2.6",
     "name": "Nectar Peach Juice",
     "price": 3,
-    "stock": 4
+    "stock": 3
   },
   {
     "id": "2.7",
@@ -135,7 +135,7 @@
     "id": "3.7",
     "name": "Jeju Matcha Latte",
     "price": 2,
-    "stock": 4
+    "stock": 3
   },
   {
     "id": "3.8",
